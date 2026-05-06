@@ -16,14 +16,22 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    console.log("API response:", data);
+    console.log("FULL DATA:", JSON.stringify(data, null, 2));
 
-    if (!response.ok) {
-      return res.status(500).json({ error: data });
+    // ★ 安全に取り出す
+    let result = "うまく生成できませんでした";
+
+    if (data.output && data.output.length > 0) {
+      for (const item of data.output) {
+        if (item.content) {
+          for (const c of item.content) {
+            if (c.text) {
+              result = c.text;
+            }
+          }
+        }
+      }
     }
-
-    const result =
-      data.output?.[0]?.content?.[0]?.text || "うまく生成できませんでした";
 
     res.status(200).json({ result });
 
